@@ -1,17 +1,20 @@
 const jwt = require('jsonwebtoken')
+const User = require('../models/User')
 
-const fetchUser = (req, res, next)=>{
-    const token = req.header('auth-token')  
-    if(!token){
-        return res.status(400).json({err: "Plzz enter a valid token"})
-    }
-    try {
-        const data = jwt.verify(token, process.env.JWT_SECRET)
-        req.user = data.userEmail
+const auth = async (req, res, next) =>{
+    try{
+        const token = req.cookies.jwt;
+        const verify = jwt.verify(token, process.env.KEY)
+
+        const user = await User.findOne({_id: verify._id})
+
+        req.token = token
+        req.user = user
+
         next()
-    } catch (error) {
-        console.log(error);
+    }catch(e){
+        res.status(200).render('login')
     }
 }
 
-module.exports = fetchUser
+module.exports = auth;
