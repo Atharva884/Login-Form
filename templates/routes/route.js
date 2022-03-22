@@ -30,7 +30,7 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.json({err: errors.array()})
       // const alert = errors.array()
       // res.render('register', {alert})
     }
@@ -50,11 +50,8 @@ router.post(
           password: hashPass,
         });
 
-        const token = await data.JSONAuth();
-        res.cookie("jwt", token);
-
         await data.save();
-        res.redirect("/login");
+        res.render("login");
       }
     } catch (error) {
       console.log(error);
@@ -98,13 +95,12 @@ router.post(
     // }
     // const authtoken = jwt.sign(data, process.env.JWT_SECRET)
     // console.log(authtoken);
-    res.redirect("/home");
+    res.render("home");
   }
 );
-// router.post("/getuser", fetchUser, async (req, res) => {
-//   const userId = req.user.id;
-//   const data = await User.findById(userId).select("-password");
-//   res.send(data);
-// });
+router.get('/logout', auth, (req, res)=>{
+  res.clearCookie('jwt')
+  res.render('login')
+})
 
 module.exports = router;
